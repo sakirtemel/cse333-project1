@@ -1,0 +1,12 @@
+enviromentVariables
+enviromentVariables.c
+firstTry
+forkexec
+forkexec.c
+parseCommands
+parseCommands.c
+redirection
+redirection.c
+runFunction
+runFunction.c
+sonuc.txt
