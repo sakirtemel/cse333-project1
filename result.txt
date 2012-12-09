@@ -1,7 +1,16 @@
-""
-al 60
--rw-rw-r-- 1 sakir sakir   718 Dec  8 01:25 builtinCommands.c
--rw-rw-r-- 1 sakir sakir   903 Dec  8 01:31 ioRedirection.c
+builtinCommands.c
+ioRedirection.c
+ioRedirection.o
+opsys
+pipe.c
+process.c
+process.o
+result.txt
+shell
+shell.c
+shell.o
+signals.c
+on.c
 -rw-rw-r-- 1 sakir sakir  2744 Dec  8 01:11 ioRedirection.o
 drwxrwxr-x 3 sakir sakir  4096 Dec  7 23:24 opsys
 -rw-rw-r-- 1 sakir sakir     1 Dec  8 01:49 pipe.c

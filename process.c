@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
+#include "pipe.c"
 extern int errno;        // system error number 
 
 void syserr(char * msg)   // report error code and abort
@@ -17,13 +17,16 @@ pid_t runProcess(const char *cmd, char *args[]){
 
    pid_t pid;            // process ID
    //int rc;               // return code
-
-
+	
    switch (pid = fork()) {
       case -1:
          //syserr("fork");
          ;
       case 0:             // execution in child process 
+		if(readFromInput)
+			readInput();
+		if(writeToOutput)
+			writeOutput();
         execv(cmd,args);
         syserr("execl"); // error if return from exec
         printf("error");

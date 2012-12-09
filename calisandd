@@ -25,7 +25,8 @@ int checkCommands(char **commands){
 	int i = 0;
 	int argCount = 0;
 	char cmd[50];
-	int ilk = 1;
+	int writeToOutput = 0;
+	int readFromInput = 0;
 	process proc;
 	for(;commands[i]!=NULL;i++){ /* inspect each arg. */
 		/* if there is a redirect, change redirect string */
@@ -50,14 +51,9 @@ int checkCommands(char **commands){
 			
 			openPipe();
 			
-			if(ilk){
-				readFromInput = 0;
+				if(writeToOutput)
+					readFromInput = 1;
 				writeToOutput = 1;
-				ilk = 0;	
-			}else{
-				readFromInput = 1;
-				writeToOutput = 0;
-			}
 				strcpy(cmd, which(proc.arguments[0]));
 				fprintf(stderr, "%s %d,%d\n", cmd,readFromInput, writeToOutput);
 				runForegroundProcess(cmd, proc.arguments);			
@@ -69,11 +65,17 @@ int checkCommands(char **commands){
 			proc.arguments[argCount++] = commands[i];
 		}
 	}
-	closePipes();
+//	closePipes();
 	/* run the last proc */
+	if(writeToOutput==1){
+		readFromInput = 1;
+	}
+	writeToOutput = 0;
 	proc.arguments[argCount] = NULL;
-	//strcpy(cmd, which(proc.arguments[0]));
-	//runForegroundProcess(cmd, proc.arguments);
+	strcpy(cmd, which(proc.arguments[0]));
+	fprintf(stderr, "%s %d,%d\n", cmd,readFromInput, writeToOutput);
+	runForegroundProcess(cmd, proc.arguments);
+	closePipes();
 	
 	//printf("%s", proc.arguments[0]);
 	
