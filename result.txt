@@ -1,1 +1,13 @@
-
+""
+al 60
+-rw-rw-r-- 1 sakir sakir   718 Dec  8 01:25 builtinCommands.c
+-rw-rw-r-- 1 sakir sakir   903 Dec  8 01:31 ioRedirection.c
+-rw-rw-r-- 1 sakir sakir  2744 Dec  8 01:11 ioRedirection.o
+drwxrwxr-x 3 sakir sakir  4096 Dec  7 23:24 opsys
+-rw-rw-r-- 1 sakir sakir     1 Dec  8 01:49 pipe.c
+-rw-rw-r-- 1 sakir sakir  1550 Dec  9 02:16 process.c
+-rw-rw-r-- 1 sakir sakir  3632 Dec  8 03:01 process.o
+-rw-rw-r-- 1 sakir sakir   609 Dec  9 02:15 result.txt
+-rwxrwxr-x 1 sakir sakir 14779 Dec  9 02:15 shell
+-rw-rw-r-- 1 sakir sakir  2401 Dec  9 02:15 shell.c
+-rw-rw-r-- 1 sakir sakir  7352 Dec  9 02:08 shell.o

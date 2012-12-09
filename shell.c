@@ -29,9 +29,25 @@ int checkCommands(char **commands){
 	cvp = checkInternalCommand(commands);
 	
 	if(cvp==0){
-		strcpy(cmd, "/bin/");
-		strcat(cmd, commands[0]);
-		runForegroundProcess(cmd);
+		strcpy(cmd, which(commands[0]));
+		if(cmd!=NULL){
+			// fetch the arguments
+			int j = 0;
+			char *argumanlar[30];
+			while(commands[j]!=NULL){
+				if(*commands[j]=='>')
+					break;
+				argumanlar[j] = commands[j];
+				//printf("%s\n", commands[j]);
+				j++;
+			}
+			argumanlar[j] = NULL;
+			j = 0;
+
+			runForegroundProcess(cmd, argumanlar);
+
+			
+		}
 		cvp=1;
 	}
 	
@@ -47,7 +63,7 @@ int main (int argc, char ** argv)
     char buf[MAX_BUFFER];                      // line buffer
     char * args[MAX_ARGS];                     // pointers to arg strings
     char ** arg;                               // working pointer thru args
-    char * prompt = "Moje Shell ==>" ;                    // shell prompt
+    char * prompt = "Moje Shell ==> " ;                    // shell prompt
 	int checkCommandsResult = 0;
 /* keep reading input until "quit" command or eof of redirected input */
      
