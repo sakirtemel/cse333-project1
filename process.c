@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "pipe.c"
+#include "signals.c"
+
 extern int errno;        // system error number 
 
 void syserr(char * msg)   // report error code and abort
@@ -23,14 +25,22 @@ pid_t runProcess(const char *cmd, char *args[]){
          //syserr("fork");
          ;
       case 0:             // execution in child process 
-		if(readFromInput)
+		if(readFromInput){
 			readInput();
-		if(writeToOutput)
+			closeAllPipes();
+			
+		}
+		if(writeToOutput){
 			writeOutput();
+			if(!readFromInput){
+				closeAllPipes();
+			}
+		}
         execv(cmd,args);
         syserr("execl"); // error if return from exec
         printf("error");
    }
+   lastForegroundProcessId = pid;
 	return pid;
 }
 
@@ -41,12 +51,13 @@ void runForegroundProcess(const char *cmd, char *args[]){
 	
 
 	pid = runProcess(cmd, args);
-	waitpid(pid, &status, WUNTRACED | WCONTINUED);
+	waitpid(pid, &status, WSTOPPED);
+	//WUNTRACED | WCONTINUED
 }
-pid_t runBackgroundProcess(const char *cmd){
+pid_t runBackgroundProcess(const char *cmd, char *args[]){
 	pid_t pid;
-	//pid = runProcess(cmd);
-	pid = 2;
+	pid = runProcess(cmd, args);
+	addProcess(pid, cmd);
 	return pid;
 }
 char* which(char *filename){

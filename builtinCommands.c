@@ -1,28 +1,38 @@
 #include <string.h>
 #include <stdlib.h>
+#include "signals.c"
 
-
-int checkInternalCommand(char **args){
-//	int curOut = dup(1);
+int checkInternalCommand(char *args[]){
                 if (!strcmp(args[0],"clear")) { // "clear" command
                     system("clear");
                     //continue;
                     return 1;
                 }
-                if (!strcmp(args[0],"exit"))   // "quit" command
+                if (!strcmp(args[0],"exit")){   // "quit" command
+					killAllProcesses();
                     return -1;
+                }
                 
                 if (!strcmp(args[0],"ps_all")){  // "quit" command
-					//saveOut();
-					//redirectOutput("result.txt");
-					printf("listeler\n");
-					printf("1-\n");
-					printf("2-\n");
-					//loadOut();
-
-					//dup2(curOut, 1);
+					listAllProcesses();
                     return 1;
                 }
+				if (!strcmp(args[0],"kill")){  // "quit" command
+					int index = 0;
+					index = (int)args[1][0]-'0';
+					killWithIndex(index);
+                    return 1;
+                }
+				if (!strcmp(args[0],"fg")){  // "quit" command
+					int index = 0;
+					index = (int)args[1][0]-'0';
+					bringForeground(index);
+                    return 1;
+                } 
+				if (!strcmp(args[0],"bg")){  // "quit" command
+					bringBackground();
+                    return 1;
+                }                                            
                     
 	return 0;
 }

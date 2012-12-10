@@ -4,7 +4,7 @@
 #include "builtinCommands.c"
 #include "ioRedirection.c"
 #include "process.c"
-//#include "signals.c"
+#include "signals.c"
 
 #define MAX_BUFFER 1024                        // max line buffer
 #define MAX_ARGS 64                            // max # args
@@ -26,6 +26,10 @@ int checkCommands(char **commands){
 	int argCount = 0;
 	char cmd[50];
 	int ilk = 1;
+	writeToOutput = 0;
+	readFromInput = 0;
+
+	
 	process proc;
 	for(;commands[i]!=NULL;i++){ /* inspect each arg. */
 		/* if there is a redirect, change redirect string */
@@ -49,19 +53,18 @@ int checkCommands(char **commands){
 			proc.arguments[argCount] = NULL;
 			
 			openPipe();
-			
 			if(ilk){
 				readFromInput = 0;
 				writeToOutput = 1;
 				ilk = 0;	
 			}else{
 				readFromInput = 1;
-				writeToOutput = 0;
+				writeToOutput = 1;
 			}
 				strcpy(cmd, which(proc.arguments[0]));
-				fprintf(stderr, "%s %d,%d\n", cmd,readFromInput, writeToOutput);
-				runForegroundProcess(cmd, proc.arguments);			
-			closePipes();
+				fprintf(stderr, "\n %s Pipes %d,%d\n", cmd,readFromInput, writeToOutput);
+				runBackgroundProcess(cmd, proc.arguments);			
+			//closePipes();
 				
 			argCount = 0;
 		}
@@ -69,12 +72,39 @@ int checkCommands(char **commands){
 			proc.arguments[argCount++] = commands[i];
 		}
 	}
-	closePipes();
+	if(ilk==0){
+		//closePipes();
+		readFromInput = 1;
+		writeToOutput = 0;
+	}
 	/* run the last proc */
 	proc.arguments[argCount] = NULL;
-	//strcpy(cmd, which(proc.arguments[0]));
-	//runForegroundProcess(cmd, proc.arguments);
 	
+	switch(checkInternalCommand(proc.arguments)){
+		case 1:
+			return 1;
+			break;
+		case -1:
+			return -1;
+			break;
+	}
+	
+	strcpy(cmd, which(proc.arguments[0]));
+	
+	/*if(ilk==0){
+		runBackgroundProcess(cmd, proc.arguments);
+		closeAllPipes();
+		while(wait(NULL)!=-1);
+	}*/
+	
+	
+	/*if(1==2)
+	{*/
+	if(proc.isBackground == 1)
+		runBackgroundProcess(cmd, proc.arguments);
+	else
+		runForegroundProcess(cmd, proc.arguments);
+	/*}*/
 	//printf("%s", proc.arguments[0]);
 	
 	return 1;
@@ -133,11 +163,12 @@ int main (int argc, char ** argv)
     char buf[MAX_BUFFER];                      // line buffer
     char * args[MAX_ARGS];                     // pointers to arg strings
     char ** arg;                               // working pointer thru args
-    char * prompt = "Moje Shell ==> " ;                    // shell prompt
+    char * prompt = "\nMoje Shell ==> " ;                    // shell prompt
 	int checkCommandsResult = 0;
 /* keep reading input until "quit" command or eof of redirected input */
      
-  //   initSignals();
+     initSignals();
+     initPipes();
      
     while (!feof(stdin)) { 
     
