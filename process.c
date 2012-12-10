@@ -51,7 +51,7 @@ void runForegroundProcess(const char *cmd, char *args[]){
 	
 
 	pid = runProcess(cmd, args);
-	waitpid(pid, &status, WSTOPPED);
+	waitpid(pid, &status, WUNTRACED | WCONTINUED);
 	//WUNTRACED | WCONTINUED
 }
 pid_t runBackgroundProcess(const char *cmd, char *args[]){
