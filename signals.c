@@ -19,6 +19,7 @@ void bringForeground(int);
 void bringBackground();
 
 void killWithIndex(int);
+void killWithProcessId(int);
 void listAllProcesses();
 void killAllProcesses();
 struct job
@@ -138,6 +139,13 @@ void addProcess(int pid,const char *info)
 void bringBackground(){
 	fprintf(stderr, "bring called");
 	kill(lastForegroundProcessId, SIGCONT);
+    JOB  node= malloc(sizeof(JOB));
+    node->info=malloc(sizeof(char)*20);
+    strcat(node->info,"Last suspended one");
+    node->pid=lastForegroundProcessId;
+    node->index=++processIndexCounter;
+    addToList(&jobHeader, node);
+	
 }
 
 
@@ -186,7 +194,21 @@ void bringForeground(int index)
 
 }
 
+void killWithProcessId(int index){
+    JOB tmp = jobHeader;
 
+    while (tmp != NULL)
+    {
+        if (tmp->pid == index)
+        {
+            kill(tmp->pid,SIGKILL);
+            fprintf(stderr, " Killed:  %d" ,tmp->pid);
+            return;
+        }
+        tmp=tmp->next;
+    }
+    fprintf(stderr, " There is no such a process with process id =  %d" , index);
+}
 
 void killWithIndex(int index){
     JOB tmp = jobHeader;
@@ -209,16 +231,16 @@ void listAllProcesses(){
 		JOB temp = NULL;
 	if(jobHeader==NULL)
 		processIndexCounter = 0;
-	fprintf(stderr, "\nRunning Processes\n");
+	printf("\nRunning Processes\n");
     while (tmp != NULL)
     {
-        fprintf(stderr, "\n[%d]  %s  (pid=%d)" ,tmp->index,tmp->info,tmp->pid);
+        printf("\n[%d]  %s  (pid=%d)" ,tmp->index,tmp->info,tmp->pid);
         tmp=tmp->next;
     }
-    fprintf(stderr, "\nTerminated Processes\n");
+    printf("\nTerminated Processes\n");
     while (tmp2 != NULL)
     {
-        fprintf(stderr, "\n[%d]  %s  (pid=%d)" ,tmp2->index,tmp2->info,tmp2->pid);
+        printf("\n[%d]  %s  (pid=%d)" ,tmp2->index,tmp2->info,tmp2->pid);
         temp = tmp2;
         tmp2=tmp2->next;
         removeFromList(&terminatedJobHeader, temp);
@@ -229,9 +251,13 @@ void listAllProcesses(){
 //ctrl+Z
 void suspendHandler()
 {
-        kill(lastForegroundProcessId,SIGSTOP);
-        printf("process (%d)  stopped\n",lastForegroundProcessId);
-        raise(SIGCHLD);
+		if(fork()==0){
+			kill(lastForegroundProcessId,SIGSTOP);
+			printf("process (%d)  stopped\n",lastForegroundProcessId);
+			kill(getpid(),SIGKILL);
+		}
+        
+        //raise(SIGCHLD);
 }
 
 //ctrl+D
@@ -255,6 +281,7 @@ void childOldu(){
 				
 				removeFromList(&jobHeader, currentHeader);
 				addToList(&terminatedJobHeader, currentHeader);
+				raise(SIGTSTP);
 				return;
 				/* move to the other list */
 				
@@ -271,7 +298,7 @@ int initSignals(){
 	//signal(SIGUSR1, SIG_IGN); //Ignore ctrl+C
 	signal(SIGTSTP, suspendHandler); // ctrl+Z
 	signal(3, terminateHandler); // ctrl+D
-	signal(SIGCHLD, childOldu);
+	//signal(SIGCHLD, childOldu);
 	return 1;
 }
 void killAllProcesses(){
